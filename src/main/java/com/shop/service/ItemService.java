@@ -32,26 +32,28 @@ public class ItemService {
     public Long saveItem(ItemFormDto itemFormDto,
                          List<MultipartFile> itemImgFileList) throws Exception {
 
-        //  상품등록
+        //상품 등록
         Item item = itemFormDto.createItem();
         itemRepository.save(item);
 
-        // 이미지 등록
-        for(int i=0; i<itemImgFileList.size();i++){
+        //이미지 등록
+        for(int i=0;i<itemImgFileList.size();i++){
             ItemImg itemImg = new ItemImg();
             itemImg.setItem(item);
+
             if(i == 0)
                 itemImg.setRepimgYn("Y");
             else
                 itemImg.setRepimgYn("N");
-            itemImgService.saveItemImg(itemImg,itemImgFileList.get(i));
+
+            itemImgService.saveItemImg(itemImg, itemImgFileList.get(i));
         }
 
         return item.getId();
     }
 
 
-    public ItemFormDto getItemDtl(Long itemId) {
+    public ItemFormDto getItemDtl(Long itemId){
         List<ItemImg> itemImgList = itemImgRepository.findByItemIdOrderByIdAsc(itemId);
         List<ItemImgDto> itemImgDtoList = new ArrayList<>();
         for (ItemImg itemImg : itemImgList) {
@@ -69,19 +71,18 @@ public class ItemService {
     @Transactional
     public Long updateItem(ItemFormDto itemFormDto,
                            List<MultipartFile> itemImgFileList) throws Exception {
-
-        // 상품 수정
+        //상품 수정
         Item item = itemRepository.findById(itemFormDto.getId())
                 .orElseThrow(EntityNotFoundException::new);
         item.updateItem(itemFormDto);
-
         List<Long> itemImgIds = itemFormDto.getItemImgIds();
 
-        // 이미지 등록
-        for(int i=0; i<itemImgFileList.size();i++){
+        //이미지 등록
+        for(int i=0;i<itemImgFileList.size();i++){
             itemImgService.updateItemImg(itemImgIds.get(i),
                     itemImgFileList.get(i));
         }
+
         return item.getId();
     }
 
